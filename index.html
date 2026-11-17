@@ -1,0 +1,238 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Dossiê de Chargeback</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap">
+<style>
+/* Layout: coluna única. Aviso de simulação, seletor de caso, linha do tempo de chamadas MCP, dossiê, aprovação humana, quem faz o quê. */
+:root{
+  --bg:#F2F5F7; --surface:#FFFFFF; --ink:#14202B; --muted:#586878; --line:#D8E0E6;
+  --accent:#0B6E8A; --accent-ink:#FFFFFF; --accent-soft:#E1F0F5;
+  --ok:#1E7F4F; --ok-soft:#E2F3EA; --warn:#9A5B00; --warn-soft:#FBEFD9; --bad:#B3261E; --bad-soft:#FBE6E4;
+  --rule:#6B4FA0; --rule-soft:#EEE9F7;
+  --font-display:"Space Grotesk",system-ui,sans-serif; --font-body:"Inter",system-ui,sans-serif;
+  --font-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E151B; --surface:#151F27; --ink:#E6EDF2; --muted:#93A4B2; --line:#263540;
+    --accent:#5CC0DB; --accent-ink:#0E151B; --accent-soft:#17323C;
+    --ok:#58C48B; --ok-soft:#14301F; --warn:#F0B35A; --warn-soft:#3A2B10; --bad:#FF8A80; --bad-soft:#3E1A18;
+    --rule:#B7A2EA; --rule-soft:#2A2340; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E151B; --surface:#151F27; --ink:#E6EDF2; --muted:#93A4B2; --line:#263540;
+  --accent:#5CC0DB; --accent-ink:#0E151B; --accent-soft:#17323C;
+  --ok:#58C48B; --ok-soft:#14301F; --warn:#F0B35A; --warn-soft:#3A2B10; --bad:#FF8A80; --bad-soft:#3E1A18;
+  --rule:#B7A2EA; --rule-soft:#2A2340; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:15px;line-height:1.55;
+  padding-block:24px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+main{max-width:920px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+h1,h2,h3{font-family:var(--font-display);font-weight:600;margin:0;text-wrap:balance;letter-spacing:-.01em}
+h1{font-size:28px;line-height:1.15}
+h2{font-size:18px}
+p{margin:0}
+code{font-family:var(--font-mono);font-size:13px}
+.eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+.lede{color:var(--muted);max-width:65ch}
+.notice{background:var(--warn-soft);color:var(--ink);border:1px solid var(--warn);border-radius:8px;padding:12px 14px;font-size:14px}
+.notice b{color:var(--warn)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px;display:flex;flex-direction:column;gap:14px}
+.cases{display:flex;flex-wrap:wrap;gap:8px}
+.case{font:inherit;text-align:left;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px 12px;cursor:pointer;min-width:0;flex:1 1 220px}
+.case:hover{border-color:var(--accent)}
+.case[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.case:focus-visible,.btn:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.case .id{font-family:var(--font-mono);font-size:12px;color:var(--muted)}
+.case .t{display:block;font-weight:600}
+.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.meta div{min-width:0}
+.meta .k{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.meta .v{font-weight:600;font-variant-numeric:tabular-nums}
+.bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ok);border-radius:99px}
+.bar.warn i{background:var(--warn)}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.btn{font:inherit;font-weight:600;border-radius:8px;padding:9px 14px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+ol.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.step{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:start;border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.step[hidden]{display:none}
+.tag{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;border-radius:99px;padding:3px 9px;white-space:nowrap}
+.tag.mcp{background:var(--accent-soft);color:var(--accent)}
+.tag.regra{background:var(--rule-soft);color:var(--rule)}
+.step code{display:block;overflow-wrap:anywhere}
+.step .res{color:var(--muted);font-size:14px;margin-top:2px}
+.step .res b{color:var(--ink)}
+.status{display:inline-block;font-size:12px;font-weight:600;border-radius:99px;padding:3px 10px}
+.status.ok{background:var(--ok-soft);color:var(--ok)}
+.status.warn{background:var(--warn-soft);color:var(--warn)}
+.status.bad{background:var(--bad-soft);color:var(--bad)}
+ul.list{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px}
+ul.list li.attn{color:var(--warn)}
+textarea{font:inherit;width:100%;min-height:110px;resize:vertical;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px}
+.result{font-size:14px;border-radius:8px;padding:10px 12px;background:var(--ok-soft);color:var(--ink);border:1px solid var(--ok)}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.cols .panel{gap:8px}
+.foot{color:var(--muted);font-size:13px}
+@media (prefers-reduced-motion:no-preference){.step{animation:in .25s ease-out}@keyframes in{from{opacity:0;transform:translateY(4px)}}}
+</style>
+
+<main>
+  <header style="display:flex;flex-direction:column;gap:8px">
+    <div class="eyebrow">Projeto de Inovação com IA · YouShop</div>
+    <h1>Dossiê de defesa de chargeback</h1>
+    <p class="lede">Um agente consulta as provas de uma compra contestada por meio de um servidor MCP, monta o dossiê e espera a aprovação do produtor antes de qualquer envio.</p>
+  </header>
+
+  <div class="notice"><b>Simulação com dados fictícios.</b> O agente desta página segue um roteiro fixo e não usa um modelo de linguagem. O servidor MCP real, com as mesmas ferramentas, está no repositório do projeto. Nenhum dado aqui vem da YouShop.</div>
+
+  <section class="panel" aria-labelledby="h-caso">
+    <h2 id="h-caso">1. Escolha um caso</h2>
+    <div class="cases" id="cases"></div>
+    <div class="meta" id="meta"></div>
+    <div>
+      <div class="row" style="margin-bottom:6px"><span class="eyebrow">Prazo de defesa (2 dias corridos)</span><span id="prazoTxt" class="status ok"></span></div>
+      <div class="bar" id="bar"><i id="barFill"></i></div>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-agente">
+    <div class="row">
+      <h2 id="h-agente">2. O agente consulta as ferramentas</h2>
+      <button class="btn ghost" id="replay" type="button">Reproduzir passo a passo</button>
+    </div>
+    <p class="foot"><span class="tag mcp">MCP</span> consulta somente leitura ao servidor. <span class="tag regra">Regra</span> verificação comum, sem IA.</p>
+    <ol class="steps" id="steps" aria-live="polite"></ol>
+  </section>
+
+  <section class="panel" aria-labelledby="h-dossie">
+    <h2 id="h-dossie">3. Dossiê para revisão</h2>
+    <div id="dossie" style="display:flex;flex-direction:column;gap:14px"></div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-aprova">
+    <h2 id="h-aprova">4. Decisão do produtor</h2>
+    <p class="foot">O agente nunca envia nada sozinho. Esta etapa é humana.</p>
+    <div class="row" style="justify-content:flex-start">
+      <button class="btn" id="aprovar" type="button">Aprovar defesa</button>
+      <button class="btn ghost" id="ajuste" type="button">Pedir ajuste</button>
+    </div>
+    <div class="result" id="resultado" role="status" hidden></div>
+  </section>
+
+  <section aria-labelledby="h-quem" style="display:flex;flex-direction:column;gap:12px">
+    <h2 id="h-quem">Quem faz o quê</h2>
+    <div class="cols">
+      <div class="panel"><span class="tag regra" style="align-self:flex-start">Regra</span><h3>Onde há certeza</h3><p>Calcular o prazo de 2 dias e conferir se um comprovante de entrega seria aceito. Código comum resolve, sem IA.</p></div>
+      <div class="panel"><span class="tag mcp" style="align-self:flex-start">MCP</span><h3>Onde há integração</h3><p>Expor pedido, logs de acesso, rastreio e conversas ao agente por uma interface única, somente leitura.</p></div>
+      <div class="panel"><span class="tag" style="align-self:flex-start;background:var(--ok-soft);color:var(--ok)">IA na versão real</span><h3>Onde há interpretação</h3><p>Um modelo de linguagem escolheria as provas certas para cada motivo de contestação e redigiria a defesa. Nesta simulação, esse passo usa um texto fixo.</p></div>
+    </div>
+  </section>
+
+  <p class="foot">O prazo de 2 dias corridos e a lista de provas seguem os Termos de Uso públicos da YouShop (versão de outubro de 2025). Os pedidos, nomes e valores são inventados para a demonstração.</p>
+</main>
+
+<script>
+(function(){
+  var AGORA="18/11/2026 10:00";
+  var CASES=[
+    {id:"CB-001",titulo:"Compra não reconhecida",motivo:"Compra não reconhecida",valor:"R$ 297,00",tipo:"Digital",produto:"Curso Fictício de Fotografia",ped:"PED-1001",notif:"17/11 15:00",horas:29,
+     steps:[
+      {k:"mcp",c:'buscar_chargeback(chargeback_id="CB-001")',r:"Motivo <b>compra não reconhecida</b>, valor R$ 297,00, notificado em 17/11 às 15:00."},
+      {k:"regra",c:'checar_prazo(chargeback_id="CB-001")',r:"Faltam <b>29 horas</b>. Prazo não vencido."},
+      {k:"mcp",c:'buscar_pedido(pedido_id="PED-1001")',r:"Produto digital, pagamento em cartão de crédito, compra em 20/10 às 21:14."},
+      {k:"mcp",c:'buscar_logs_acesso(pedido_id="PED-1001")',r:"<b>3 registros</b> na área de membros: login em 20/10 21:20, aula 1 em 21/10 08:02, aula 2 em 23/10 19:30, todos do IP 187.10.0.1."},
+      {k:"mcp",c:'buscar_interacoes(pedido_id="PED-1001")',r:"Em 22/10 o comprador escreveu: consegui acessar, obrigada."}
+     ],
+     provas:["3 registros de uso da área de membros, o primeiro em 20/10 às 21:20, sempre do mesmo IP","Mensagem do próprio comprador confirmando o acesso"],
+     atencao:[],status:["ok","Provas fortes"],
+     rascunho:"Contestamos o chargeback CB-001 referente ao pedido PED-1001 (Curso Fictício de Fotografia). O comprador acessou a área de membros em 20/10, 21/10 e 23/10, sempre do mesmo IP, e confirmou o acesso por mensagem em 22/10. Seguem os registros anexados."},
+    {id:"CB-002",titulo:"Produto não recebido",motivo:"Produto não recebido",valor:"R$ 189,90",tipo:"Físico",produto:"Kit Fictício de Cosméticos",ped:"PED-1002",notif:"17/11 09:00",horas:23,
+     steps:[
+      {k:"mcp",c:'buscar_chargeback(chargeback_id="CB-002")',r:"Motivo <b>produto não recebido</b>, valor R$ 189,90, notificado em 17/11 às 09:00."},
+      {k:"regra",c:'checar_prazo(chargeback_id="CB-002")',r:"Faltam <b>23 horas</b>. Menos de 24 horas para enviar."},
+      {k:"mcp",c:'buscar_pedido(pedido_id="PED-1002")',r:"Produto físico, pagamento em cartão de crédito, compra em 25/10 às 14:02."},
+      {k:"mcp",c:'buscar_rastreio(pedido_id="PED-1002")',r:"Rastreio BR000000000XX marcado como <b>entregue em 03/11</b>. Endereço confere. Sem assinatura do recebedor."},
+      {k:"regra",c:'validar_prova_entrega(pedido_id="PED-1002")',r:"<b>Comprovante não seria aceito:</b> falta assinatura ou identificação do recebedor."},
+      {k:"mcp",c:'buscar_interacoes(pedido_id="PED-1002")',r:"Em 05/11 o comprador disse que o pedido não chegou. O produtor pediu para conferir com a portaria."}
+     ],
+     provas:["Rastreio BR000000000XX marcado como entregue em 03/11 (prova fraca)"],
+     atencao:["Comprovante de entrega sem assinatura do recebedor tende a ser rejeitado","Solicitar à transportadora um comprovante com assinatura antes do prazo"],status:["warn","Prova fraca"],
+     rascunho:"Contestamos o chargeback CB-002 referente ao pedido PED-1002 (Kit Fictício de Cosméticos). O rastreio BR000000000XX consta como entregue em 03/11 no endereço cadastrado. Aguardamos o comprovante com assinatura da transportadora para complementar a defesa."},
+    {id:"CB-003",titulo:"Cobrança em dobro",motivo:"Cobrança em dobro",valor:"R$ 97,00",tipo:"Digital",produto:"E-book Fictício de Finanças",ped:"PED-1003",notif:"17/11 18:00",horas:32,
+     steps:[
+      {k:"mcp",c:'buscar_chargeback(chargeback_id="CB-003")',r:"Motivo <b>cobrança em dobro</b>, valor R$ 97,00, notificado em 17/11 às 18:00."},
+      {k:"regra",c:'checar_prazo(chargeback_id="CB-003")',r:"Faltam <b>32 horas</b>. Prazo não vencido."},
+      {k:"mcp",c:'buscar_pedido(pedido_id="PED-1003")',r:"Produto digital, pagamento em cartão de crédito, compra em 30/10 às 08:40."},
+      {k:"mcp",c:'buscar_transacoes(pedido_id="PED-1003")',r:"<b>2 transações</b> do mesmo pedido: TX-9001 e TX-9002, ambas de R$ 97,00 em 30/10 às 08:41."}
+     ],
+     provas:[],atencao:["Duas cobranças idênticas no mesmo pedido: a contestação do comprador parece procedente"],status:["bad","Contestar não é recomendado"],
+     recomendacao:"Não contestar. Há evidência de cobrança duplicada. O agente recomenda avaliar o reembolso da cobrança repetida."}
+  ];
+  var cur=0, timer=null;
+  var $=function(i){return document.getElementById(i)};
+  var casesEl=$("cases"),meta=$("meta"),steps=$("steps"),dossie=$("dossie"),res=$("resultado"),reduced=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  CASES.forEach(function(c,i){
+    var b=document.createElement("button");b.type="button";b.className="case";
+    b.setAttribute("aria-pressed",i===0?"true":"false");
+    b.innerHTML='<span class="id">'+c.id+'</span><span class="t">'+c.titulo+'</span><span class="foot">'+c.tipo+' · '+c.valor+'</span>';
+    b.addEventListener("click",function(){cur=i;render(false)});
+    casesEl.appendChild(b);
+  });
+
+  function stepEl(s){
+    var li=document.createElement("li");li.className="step";
+    li.innerHTML='<span class="tag '+s.k+'">'+(s.k==="mcp"?"MCP":"Regra")+'</span><div><code>'+s.c+'</code><p class="res">'+s.r+'</p></div>';
+    return li;
+  }
+
+  function renderDossie(c){
+    var st=c.status, h='<div><span class="status '+st[0]+'">'+st[1]+'</span></div>';
+    if(c.provas.length){h+='<div><div class="eyebrow">Provas encontradas</div><ul class="list">'+c.provas.map(function(p){return"<li>"+p+"</li>"}).join("")+'</ul></div>'}
+    h+='<div><div class="eyebrow">Pontos de atenção</div>'+(c.atencao.length?'<ul class="list">'+c.atencao.map(function(p){return'<li class="attn">'+p+"</li>"}).join("")+'</ul>':'<p>Nada crítico.</p>')+'</div>';
+    if(c.rascunho){h+='<div><label class="eyebrow" for="rascunho">Rascunho da defesa (editável)</label><textarea id="rascunho"></textarea><p class="foot" style="margin-top:6px">Nesta simulação o texto é um modelo fixo. Na versão real, um modelo de linguagem o redigiria a partir dos fatos acima.</p></div>'}
+    else{h+='<div><div class="eyebrow">Recomendação do agente</div><p>'+c.recomendacao+'</p></div>'}
+    dossie.innerHTML=h;
+    if(c.rascunho){$("rascunho").value=c.rascunho}
+  }
+
+  function render(animate){
+    if(timer){clearTimeout(timer);timer=null}
+    var c=CASES[cur];
+    Array.prototype.forEach.call(casesEl.children,function(b,i){b.setAttribute("aria-pressed",i===cur?"true":"false")});
+    meta.innerHTML=[["Motivo",c.motivo],["Valor",c.valor],["Produto",c.produto],["Pedido",c.ped],["Notificado",c.notif],["Agora (simulado)",AGORA]].map(function(p){return'<div><div class="k">'+p[0]+'</div><div class="v">'+p[1]+'</div></div>'}).join("");
+    var pct=Math.round(c.horas/48*100),warn=c.horas<24;
+    $("barFill").style.width=pct+"%";$("bar").className="bar"+(warn?" warn":"");
+    $("prazoTxt").className="status "+(warn?"warn":"ok");$("prazoTxt").textContent=c.horas+" h restantes de 48 h";
+    res.hidden=true;$("aprovar").disabled=false;$("ajuste").disabled=false;
+    $("aprovar").textContent=c.rascunho?"Aprovar defesa":"Aceitar recomendação";
+    steps.innerHTML="";
+    renderDossie(c);
+    if(!animate||reduced){c.steps.forEach(function(s){steps.appendChild(stepEl(s))});return}
+    dossie.parentNode.style.opacity=".45";
+    var i=0;(function next(){
+      if(i<c.steps.length){steps.appendChild(stepEl(c.steps[i]));i++;timer=setTimeout(next,650)}
+      else{dossie.parentNode.style.opacity="";timer=null}
+    })();
+  }
+
+  $("replay").addEventListener("click",function(){render(true)});
+  $("aprovar").addEventListener("click",function(){
+    var c=CASES[cur];res.hidden=false;
+    res.textContent=c.rascunho?"Simulação: nada foi enviado. Na versão real, o envio da defesa só acontece depois desta aprovação do produtor.":"Simulação: nenhum reembolso foi feito. Na versão real, a decisão e a ação continuam com uma pessoa.";
+  });
+  $("ajuste").addEventListener("click",function(){
+    res.hidden=false;res.textContent="Pedido de ajuste registrado na simulação. O agente revisaria o dossiê com a sua instrução antes de uma nova aprovação.";
+  });
+  render(false);
+})();
+</script>
+
+</body></html>
